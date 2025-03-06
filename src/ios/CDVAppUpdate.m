@@ -31,6 +31,13 @@ static NSString *const TAG = @"CDVAppUpdate";
     NSLog(@"%@ Checking for app update", TAG);
     if ([lookup[@"resultCount"] integerValue] == 0) {
         NSString* appStoreVersion = @"1.170.5 (38)";
+        
+        // Remove anything in parentheses
+        NSRange range = [appStoreVersion rangeOfString:@"("];
+        if (range.location != NSNotFound) {
+            appStoreVersion = [appStoreVersion substringToIndex:range.location];
+        }
+        
         NSArray* appStoreVersionArr = [appStoreVersion componentsSeparatedByString:@"."];
         NSString* currentVersion = infoDictionary[@"CFBundleShortVersionString"];
         NSArray* currentVersionArr = [currentVersion componentsSeparatedByString:@"."];
@@ -40,6 +47,12 @@ static NSString *const TAG = @"CDVAppUpdate";
             f.numberStyle = NSNumberFormatterDecimalStyle;
             NSNumber* appStoreVersionNumber = [f numberFromString:[appStoreVersionArr objectAtIndex:idx]];
             NSNumber* currentVersionNumber = [f numberFromString:[currentVersionArr objectAtIndex:idx]];
+
+            // Safety check for NSNumberFormatter
+            if (!appStoreVersionNumber || !currentVersionNumber) {
+                NSLog(@"Error: Failed to parse version numbers");
+                continue;
+            }
 
             if ([currentVersionNumber compare:appStoreVersionNumber] == NSOrderedAscending) {
                 NSLog(@"%@ Need to update [%@ != %@]", TAG, appStoreVersion, currentVersion);

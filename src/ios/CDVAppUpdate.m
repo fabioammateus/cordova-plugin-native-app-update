@@ -38,6 +38,9 @@ static NSString *const TAG = @"CDVAppUpdate";
             appStoreVersion = [appStoreVersion substringToIndex:range.location];
         }
 
+        // Trim whitespace
+        appStoreVersion = [appStoreVersion stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+
         if (appStoreVersion) {
             [resultObj setObject:appStoreVersion forKey:@"store_version"];
         } else {

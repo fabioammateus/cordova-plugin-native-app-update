@@ -27,6 +27,7 @@ static NSString *const TAG = @"CDVAppUpdate";
     NSMutableDictionary *resultObj = [[NSMutableDictionary alloc]initWithCapacity:10];
     BOOL update_avail = NO;
     BOOL update_force = NO;
+    BOOL invalid_number = NO;
 
     NSLog(@"%@ Checking for app update", TAG);
     if ([lookup[@"resultCount"] integerValue] == 0) {
@@ -60,6 +61,8 @@ static NSString *const TAG = @"CDVAppUpdate";
             // Safety check for NSNumberFormatter
             if (!appStoreVersionNumber || !currentVersionNumber) {
                 NSLog(@"Error: Failed to parse version numbers");
+                invalid_number = YES;
+                [resultObj setObject:[NSNumber numberWithBool:invalid_number] forKey:@"invalid_num"];
                 continue;
             }
 

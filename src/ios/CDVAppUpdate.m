@@ -30,7 +30,7 @@ static NSString *const TAG = @"CDVAppUpdate";
 
     NSLog(@"%@ Checking for app update", TAG);
     if ([lookup[@"resultCount"] integerValue] == 0) {
-        NSString* appStoreVersion = @"1.170.5 (38)";
+        NSString* appStoreVersion = @"1.170.9 (38)";
         
         // Remove anything in parentheses
         NSRange range = [appStoreVersion rangeOfString:@"("];

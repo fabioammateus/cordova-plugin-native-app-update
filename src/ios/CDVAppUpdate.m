@@ -74,6 +74,12 @@ static NSString *const TAG = @"CDVAppUpdate";
 
     
     [resultObj setObject:[NSNumber numberWithBool:update_avail] forKey:@"update_available"];
+    
+    if (appStoreVersion) {
+        [resultObj setObject:appStoreVersion forKey:@"store_version"];
+    } else {
+         [resultObj setObject:@"" forKey:@"store_version"]; // Assign an empty string to prevent crashes
+    }
 
     CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:resultObj];
     [result setKeepCallbackAsBool:YES];

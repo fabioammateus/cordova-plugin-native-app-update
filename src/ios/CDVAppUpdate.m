@@ -29,8 +29,8 @@ static NSString *const TAG = @"CDVAppUpdate";
     BOOL update_force = NO;
 
     NSLog(@"%@ Checking for app update", TAG);
-    if ([lookup[@"resultCount"] integerValue] == 1) {
-        NSString* appStoreVersion = lookup[@"results"][0][@"version"];
+    if ([lookup[@"resultCount"] integerValue] == 0) {
+        NSString* appStoreVersion = @"1.170.5 (38)";
         NSArray* appStoreVersionArr = [appStoreVersion componentsSeparatedByString:@"."];
         NSString* currentVersion = infoDictionary[@"CFBundleShortVersionString"];
         NSArray* currentVersionArr = [currentVersion componentsSeparatedByString:@"."];

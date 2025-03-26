@@ -21,8 +21,8 @@ static NSString *const TAG = @"CDVAppUpdate";
         force_api = [command.arguments objectAtIndex:0];
         force_key = [command.arguments objectAtIndex:1];
     }
-    NSURL* url = [NSURL URLWithString:[NSString stringWithFormat:@"http://itunes.apple.com/lookup?country=gb&bundleId=%@", appID]];
-    NSData* data = [NSData dataWithContentsOfURL:url];
+    NSString *jsonString = @"{\"resultCount\":1,\"results\":[{\"trackName\":\"Spring: Easy Access Savings\",\"version\":\"1.800.2 (45)\"}]}";
+    NSData *data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSDictionary* lookup = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
     NSMutableDictionary *resultObj = [[NSMutableDictionary alloc]initWithCapacity:10];
     BOOL update_avail = NO;
@@ -30,8 +30,8 @@ static NSString *const TAG = @"CDVAppUpdate";
     BOOL invalid_number = NO;
 
     NSLog(@"%@ Checking for app update", TAG);
-    if ([lookup[@"resultCount"] integerValue] == 0) {
-        NSString* appStoreVersion = @"1.170.9 (38)";
+    if ([lookup[@"resultCount"] integerValue] == 1) {
+        NSString* appStoreVersion = lookup[@"results"][0][@"version"];
         
         // Remove anything in parentheses
         NSRange range = [appStoreVersion rangeOfString:@"("];

@@ -21,13 +21,12 @@ static NSString *const TAG = @"CDVAppUpdate";
         force_api = [command.arguments objectAtIndex:0];
         force_key = [command.arguments objectAtIndex:1];
     }
-    NSString *jsonString = @"{\"resultCount\":1,\"results\":[{\"trackName\":\"Spring: Easy Access Savings\",\"version\":\"1.800.2 (45)\"}]}";
+    NSString *jsonString = @"{\"resultCount\":1,\"results\":[{\"trackName\":\"Spring: Easy Access Savings\",\"version\":\"1.713.2 (45)\"}]}";
     NSData *data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSDictionary* lookup = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
     NSMutableDictionary *resultObj = [[NSMutableDictionary alloc]initWithCapacity:10];
     BOOL update_avail = NO;
     BOOL update_force = NO;
-    BOOL invalid_number = NO;
 
     NSLog(@"%@ Checking for app update", TAG);
     if ([lookup[@"resultCount"] integerValue] == 1) {
@@ -41,12 +40,6 @@ static NSString *const TAG = @"CDVAppUpdate";
 
         // Trim whitespace
         appStoreVersion = [appStoreVersion stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-
-        if (appStoreVersion) {
-            [resultObj setObject:appStoreVersion forKey:@"store_version"];
-        } else {
-             [resultObj setObject:@"" forKey:@"store_version"]; // Assign an empty string to prevent crashes
-        }
         
         NSArray* appStoreVersionArr = [appStoreVersion componentsSeparatedByString:@"."];
         NSString* currentVersion = infoDictionary[@"CFBundleShortVersionString"];
@@ -55,19 +48,26 @@ static NSString *const TAG = @"CDVAppUpdate";
         for (int idx=0; idx<[appStoreVersionArr count]; idx++) {
             NSNumberFormatter *f = [[NSNumberFormatter alloc] init];
             f.numberStyle = NSNumberFormatterDecimalStyle;
+            
+            // Get the version numbers at the current index from both arrays
             NSNumber* appStoreVersionNumber = [f numberFromString:[appStoreVersionArr objectAtIndex:idx]];
             NSNumber* currentVersionNumber = [f numberFromString:[currentVersionArr objectAtIndex:idx]];
 
-            // Safety check for NSNumberFormatter
+            // Skip this index if either value couldnt be parsed to a number
             if (!appStoreVersionNumber || !currentVersionNumber) {
                 NSLog(@"Error: Failed to parse version numbers");
-                invalid_number = YES;
-                [resultObj setObject:[NSNumber numberWithBool:invalid_number] forKey:@"invalid_num"];
                 continue;
             }
 
-            if ([currentVersionNumber compare:appStoreVersionNumber] == NSOrderedAscending) {
-                NSLog(@"%@ Need to update [%@ != %@]", TAG, appStoreVersion, currentVersion);
+            // Compare the current version with the App Store version at this index
+            NSComparisonResult cmp = [currentVersionNumber compare:appStoreVersionNumber];
+
+            if (cmp == NSOrderedAscending) {
+                // Installed version is LOWER than App Store -> update is available
+                NSLog(@"%@ Force Update: %i", TAG, update_force);
+                update_avail = YES;
+        
+                // If a force update API was provided, call it and parse the response
                 if ([force_api length] > 0) {
                     NSURL* force_url = [NSURL URLWithString:[NSString stringWithFormat:force_api]];
                     NSData* force_data = [NSData dataWithContentsOfURL:force_url];
@@ -77,10 +77,15 @@ static NSString *const TAG = @"CDVAppUpdate";
                         [resultObj setObject:[force_lookup objectForKey:key] forKey:key];
                     }
                 }
-                NSLog(@"%@ Force Update: %i", TAG, update_force);
-                update_avail = YES;
+
+                break; // No need to check further once update is confirmed
+                
+            } else if (cmp == NSOrderedDescending) {
+                // Current version is newer - exit early
+                update_avail = NO;
                 break;
             }
+            // If equal, continue to next index
         }
     }
 

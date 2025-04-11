@@ -21,7 +21,7 @@ static NSString *const TAG = @"CDVAppUpdate";
         force_api = [command.arguments objectAtIndex:0];
         force_key = [command.arguments objectAtIndex:1];
     }
-    NSString *jsonString = @"{\"resultCount\":1,\"results\":[{\"trackName\":\"Spring: Easy Access Savings\",\"version\":\"1.713.2 (45)\"}]}";
+    NSString *jsonString = @"{\"resultCount\":1,\"results\":[{\"trackName\":\"Spring: Easy Access Savings\",\"version\":\"1.729.5 (45)\"}]}";
     NSData *data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSDictionary* lookup = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
     NSMutableDictionary *resultObj = [[NSMutableDictionary alloc]initWithCapacity:10];

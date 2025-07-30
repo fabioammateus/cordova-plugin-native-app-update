@@ -37,7 +37,16 @@ static NSString *const TAG = @"CDVAppUpdate";
     NSURL* url = [NSURL URLWithString:[NSString stringWithFormat:@"http://itunes.apple.com/lookup?country=gb&bundleId=%@", appID]];
     NSData* data = [NSData dataWithContentsOfURL:url];
 
+    if (!data) {
+        NSLog(@"Failed to retrieve data from URL: %@", url);
+        return;
+    }
+
     NSDictionary* lookup = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    if (!lookup) {
+        NSLog(@"JSON parse error: %@", jsonError.localizedDescription);
+        return;
+    }
     
 
     NSMutableDictionary *resultObj = [[NSMutableDictionary alloc]initWithCapacity:10];

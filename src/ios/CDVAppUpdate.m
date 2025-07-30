@@ -13,6 +13,8 @@ static NSString *const TAG = @"CDVAppUpdate";
 
 -(void) needsUpdate:(CDVInvokedUrlCommand*)command
 {
+    
+    NSDictionary* infoDictionary = [[NSBundle mainBundle] infoDictionary];
     NSString* appID = nil;    
     NSString* force_api = nil;
     NSString* force_key = nil;
@@ -29,7 +31,6 @@ static NSString *const TAG = @"CDVAppUpdate";
 
     // fallback to bundle if appID not provided
     if (!appID || [appID length] == 0) {
-        NSDictionary* infoDictionary = [[NSBundle mainBundle] infoDictionary];
         appID = infoDictionary[@"CFBundleIdentifier"];
     }
     

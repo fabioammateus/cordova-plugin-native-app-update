@@ -37,23 +37,8 @@ static NSString *const TAG = @"CDVAppUpdate";
     NSURL* url = [NSURL URLWithString:[NSString stringWithFormat:@"http://itunes.apple.com/lookup?country=gb&bundleId=%@", appID]];
     NSData* data = [NSData dataWithContentsOfURL:url];
 
-    if (!data) {
-        NSLog(@"Failed to retrieve data from URL: %@", url);
-        // Return error or fallback result
-        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Update check failed: no data received"];
-        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
-        return;
-    }
-
-    NSError* jsonError = nil;
-
-    NSDictionary* lookup = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-    if (!lookup || jsonError) {
-        NSLog(@"JSON parse error: %@", jsonError.localizedDescription);
-        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Update check failed: invalid response"];
-        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
-        return;
-    }
+    NSDictionary* lookup = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+    
 
     NSMutableDictionary *resultObj = [[NSMutableDictionary alloc]initWithCapacity:10];
     BOOL update_avail = NO;
@@ -62,7 +47,7 @@ static NSString *const TAG = @"CDVAppUpdate";
     NSLog(@"%@ Checking for app update", TAG);
     if ([lookup[@"resultCount"] integerValue] == 1) {
         NSString* appStoreVersion = lookup[@"results"][0][@"version"];
-    
+        
         // Remove anything in parentheses
         NSRange range = [appStoreVersion rangeOfString:@"("];
         if (range.location != NSNotFound) {

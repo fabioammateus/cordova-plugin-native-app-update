@@ -33,12 +33,13 @@ var AppUpdate = {
      * @param force_api_url {String=""} - an api endpoint to call when checking the app update type for a forced update
      * @param force_api_response_key {String=""} - the key returned from the api containing the app update type value
      */
-    needsUpdate: function(success, failure, force_api_url, force_api_response_key) {
+    needsUpdate: function(success, failure, app_id, force_api_url, force_api_response_key) {
         success = success || EMPTY_FN;
         failure = failure || EMPTY_FN;
+        app_id = app_id || "";
         force_api_url = force_api_url || "";
         force_api_response_key = force_api_response_key || "";
-        exec(success, failure, "AppUpdate", "needsUpdate", [force_api_url, force_api_response_key]);
+        exec(success, failure, "AppUpdate", "needsUpdate", [app_id, force_api_url, force_api_response_key]);
     }
 };
 

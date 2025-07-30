@@ -13,7 +13,6 @@ static NSString *const TAG = @"CDVAppUpdate";
 
 -(void) needsUpdate:(CDVInvokedUrlCommand*)command
 {
-    NSDictionary* infoDictionary = [[NSBundle mainBundle] infoDictionary];
     NSString* appID = nil;    
     NSString* force_api = nil;
     NSString* force_key = nil;
@@ -21,8 +20,10 @@ static NSString *const TAG = @"CDVAppUpdate";
     if ([command.arguments count] > 0) {
         appID = [command.arguments objectAtIndex:0];
     }
-    if ([command.arguments count] > 2) {
+    if ([command.arguments count] > 1) {
         force_api = [command.arguments objectAtIndex:1];
+    }
+    if ([command.arguments count] > 2) {
         force_key = [command.arguments objectAtIndex:2];
     }
 

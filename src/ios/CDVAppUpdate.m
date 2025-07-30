@@ -14,16 +14,45 @@ static NSString *const TAG = @"CDVAppUpdate";
 -(void) needsUpdate:(CDVInvokedUrlCommand*)command
 {
     NSDictionary* infoDictionary = [[NSBundle mainBundle] infoDictionary];
-    NSString* appID = infoDictionary[@"CFBundleIdentifier"];
+    NSString* appID = nil;    
     NSString* force_api = nil;
     NSString* force_key = nil;
+    
     if ([command.arguments count] > 0) {
-        force_api = [command.arguments objectAtIndex:0];
-        force_key = [command.arguments objectAtIndex:1];
+        appID = [command.arguments objectAtIndex:0];
     }
+    if ([command.arguments count] > 2) {
+        force_api = [command.arguments objectAtIndex:1];
+        force_key = [command.arguments objectAtIndex:2];
+    }
+
+    // fallback to bundle if appID not provided
+    if (!appID || [appID length] == 0) {
+        NSDictionary* infoDictionary = [[NSBundle mainBundle] infoDictionary];
+        appID = infoDictionary[@"CFBundleIdentifier"];
+    }
+    
     NSURL* url = [NSURL URLWithString:[NSString stringWithFormat:@"http://itunes.apple.com/lookup?country=gb&bundleId=%@", appID]];
     NSData* data = [NSData dataWithContentsOfURL:url];
-    NSDictionary* lookup = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+
+    if (!data) {
+        NSLog(@"Failed to retrieve data from URL: %@", url);
+        // Return error or fallback result
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Update check failed: no data received"];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        return;
+    }
+
+    NSError* jsonError = nil;
+
+    NSDictionary* lookup = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
+    if (!lookup || jsonError) {
+        NSLog(@"JSON parse error: %@", jsonError.localizedDescription);
+        CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Update check failed: invalid response"];
+        [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+        return;
+    }
+
     NSMutableDictionary *resultObj = [[NSMutableDictionary alloc]initWithCapacity:10];
     BOOL update_avail = NO;
     BOOL update_force = NO;
